@@ -1,12 +1,11 @@
-use crate::MAP;
-use hyper::header::HeaderValue;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request, Response, Server};
+use crate::database::CONN;
+use hyper::{
+    header::HeaderValue,
+    service::{make_service_fn, service_fn},
+    Body, Request, Response, Server,
+};
 use hyper_staticfile::{resolve, ResponseBuilder};
-use std::convert::Infallible;
-use std::error::Error;
-use std::io::Error as IoError;
-use std::net::SocketAddr;
+use std::{convert::Infallible, error::Error, io::Error as IoError, net::SocketAddr};
 
 pub async fn run() -> Result<(), Box<dyn Error + Send + Sync>> {
     log::info!("Starting http server...");
@@ -19,12 +18,7 @@ pub async fn run() -> Result<(), Box<dyn Error + Send + Sync>> {
 
 async fn handler(req: Request<Body>) -> Result<Response<Body>, IoError> {
     let file_id = req.uri().path().trim_start_matches("/").to_string();
-    let filename = MAP
-        .lock()
-        .unwrap()
-        .get(&file_id)
-        .unwrap_or(&file_id)
-        .to_string();
+    let filename = CONN.get(&file_id).unwrap_or(file_id);
     resolve("./tmp", &req).await.map(|result| {
         let mut res = ResponseBuilder::new()
             .request(&req)
