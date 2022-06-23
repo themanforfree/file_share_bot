@@ -11,7 +11,7 @@ use tokio::fs::File;
 mod database;
 mod server;
 
-const BASE_URL: &'static str = "http://127.0.0.1:3000";
+const BASE_URL: &str = "http://127.0.0.1:3000";
 
 // static CONN: Lazy<DB> = Lazy::new(|| DB::open(DATABASE_URL).unwrap());
 

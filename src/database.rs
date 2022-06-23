@@ -6,7 +6,7 @@ use r2d2::Pool;
 use r2d2_sqlite::SqliteConnectionManager;
 use rusqlite::{params, Result};
 
-const DATABASE_URL: &'static str = "test.db";
+const DATABASE_URL: &str = "test.db";
 pub static CONN: Lazy<ConnectionPool> = Lazy::new(|| ConnectionPool::init(DATABASE_URL).unwrap());
 
 pub struct ConnectionPool(Pool<SqliteConnectionManager>);
@@ -51,9 +51,9 @@ impl ConnectionPool {
         let ts = Utc::now().timestamp() - second;
         let conn = self.0.get().unwrap();
         let mut stmt = conn.prepare("SELECT file_id FROM file_infos WHERE timestamp<?1")?;
-        let file_ids = stmt.query_map([ts], |row| Ok::<String, rusqlite::Error>(row.get(0)?))?;
+        let file_ids = stmt.query_map([ts], |row| row.get(0))?;
         for file_id in file_ids {
-            let file_id = file_id.unwrap();
+            let file_id: String = file_id.unwrap();
             let path = Path::new("./tmp").join(&file_id);
             std::fs::remove_file(path).unwrap();
             conn.execute("DELETE FROM file_infos WHERE file_id=?1", [file_id])?;

@@ -17,7 +17,7 @@ pub async fn run() -> Result<(), Box<dyn Error + Send + Sync>> {
 }
 
 async fn handler(req: Request<Body>) -> Result<Response<Body>, IoError> {
-    let file_id = req.uri().path().trim_start_matches("/").to_string();
+    let file_id = req.uri().path().trim_start_matches('/').to_string();
     let filename = CONN.get(&file_id).unwrap_or(file_id);
     resolve("./tmp", &req).await.map(|result| {
         let mut res = ResponseBuilder::new()
